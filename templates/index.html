@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Plaid Link</title>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+</head>
+<body>
+  <h1>Connect your bank account</h1>
+  <button id="linkButton">Open Link</button>
+  <script>
+    var linkHandler = Plaid.create({
+      token: '{{ link_token }}',
+      onSuccess: function(public_token, metadata) {
+        fetch('/get_public_token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ public_token: public_token })
+        }).then(response => response.json()).then(data => {
+          alert('Public token: ' + data.public_token);
+        });
+      },
+      onExit: function(err, metadata) {
+        if (err != null) {
+          console.error('Error: ' + err);
+        }
+      }
+    });
+
+    document.getElementById('linkButton').onclick = function() {
+      linkHandler.open();
+    };
+  </script>
+</body>
+</html>
